@@ -13,13 +13,12 @@ class MessMenuScreenView extends GetView<MessMenuScreenController> {
         builder: (_) {
           return Scaffold(
             body: SafeArea(
-
               child: Stack(children: <Widget>[
-                
                 Positioned.fill(
                   child: Opacity(
-                    opacity: 0.6, // Adjust the opacity as needed
+                    opacity: 0.8, // Adjust the opacity as needed
                     child: Image.asset(
+                      // Adjust the opacity as needed
                       'assets/hell.png', // Replace with your image path
                       fit: BoxFit.cover, // Cover the screen with the image
                     ),

@@ -1,77 +1,121 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:secondfyp/app/routes/app_pages.dart';
 import '../controllers/profiledetails_controller.dart';
 
 class ProfiledetailsView extends GetView<ProfiledetailsController> {
   const ProfiledetailsView({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Resident Data'),
+        title: const Text('Account Information'),
         centerTitle: true,
       ),
-      body: Obx(() {
-        if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (controller.residentData.isEmpty) {
-          return const Center(child: Text('No resident data available'));
-        } else {
-          return ListView.builder(
-            padding: const EdgeInsets.all(8.0),
-            itemCount: controller.residentData.length,
-            itemBuilder: (context, index) {
-              final resident = controller.residentData[index];
-              return Card(
-                margin:
-                    const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                ),
-                elevation: 4,
-                child: ListTile(
-                  contentPadding: const EdgeInsets.all(16.0),
-                  leading: CircleAvatar(
-                    radius: 30,
-                    backgroundColor: Colors.blueAccent,
-                    child: Text(
-                      resident['name']?.substring(0, 1) ?? '',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Obx(
+          () => Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ListTile(
+                leading: Obx(() {
+                  if (controller.isImageUploading.value) {
+                    return CircleAvatar(
+                      radius: 30,
+                      backgroundColor: Colors.grey.shade200,
+                      child: CircularProgressIndicator(
+                        color: Colors.grey.shade800,
                       ),
+                    );
+                  } else if (controller.userData['imageUrl'] != null &&
+                      controller.userData['imageUrl'].isNotEmpty) {
+                    return CircleAvatar(
+                      radius: 30,
+                      backgroundImage:
+                          NetworkImage(controller.userData['imageUrl']),
+                    );
+                  } else {
+                    return GestureDetector(
+                      onTap: () => controller.pickProfileImage(),
+                      child: CircleAvatar(
+                        radius: 30,
+                        backgroundColor: Colors.grey.shade200,
+                        child: Icon(
+                          Icons.camera_alt,
+                          color: Colors.grey.shade800,
+                        ),
+                      ),
+                    );
+                  }
+                }),
+                title: Text(
+                  '${controller.userData['firstName']} ${controller.userData['lastName']}',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                subtitle: Text('Primary'),
+                trailing: IconButton(
+                  icon: Icon(Icons.edit),
+                  onPressed: () {
+                    // Navigate to edit profile screen
+                  },
+                ),
+              ),
+              Divider(),
+              _buildInfoItem('Email', controller.userData['email'] ?? '',
+                  Icons.email, () {}),
+              SizedBox(height: 20),
+              _buildInfoItem('Expiration date', '21/09/2023'),
+              _buildInfoItem('Last login', '28/06/2024 22:22:35'),
+              _buildInfoItem('Created time', '06/09/2023 03:18:06'),
+              _buildInfoItem('Resident Data', '', Icons.people, () {
+                Get.toNamed(Routes.RESIDENTDATALIST);
+              }),
+              Spacer(),
+              Center(
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    await controller.logout();
+                  },
+                  icon: Icon(Icons.logout, color: Colors.white),
+                  label: Text('Logout', style: TextStyle(color: Colors.white)),
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.red, // Background color
+                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
                     ),
-                  ),
-                  title: Text(
-                    resident['name'] ?? 'Unknown',
-                    style: const TextStyle(
+                    textStyle: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  subtitle: Text(
-                    'CNIC: ${resident['cnic'] ?? 'Unknown'}',
-                    style: const TextStyle(
-                      fontSize: 16,
-                    ),
-                  ),
-                  trailing: Chip(
-                    label: Text(
-                      'Status: ${resident['status'] ?? 'Unknown'}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                      ),
-                    ),
-                    backgroundColor: (resident['status'] == 'Present')
-                        ? Colors.green
-                        : Colors.red,
-                  ),
                 ),
-              );
-            },
-          );
-        }
-      }),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoItem(String label, String value,
+      [IconData? icon, Function()? onTap]) {
+    return Expanded(
+      child: ListTile(
+        contentPadding: EdgeInsets.zero,
+        leading: icon != null ? Icon(icon, color: Colors.grey) : null,
+        title: Text(
+          label,
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
+        ),
+        subtitle: Text(value),
+        trailing: onTap != null
+            ? IconButton(
+                icon: Icon(Icons.edit, color: Colors.grey), onPressed: onTap)
+            : null,
+      ),
     );
   }
 }

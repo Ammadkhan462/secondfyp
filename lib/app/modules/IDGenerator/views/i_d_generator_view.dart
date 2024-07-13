@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:secondfyp/app/modules/IDGenerator/controllers/i_d_generator_controller.dart';
 
 class IDGeneratorView extends GetView<IDGeneratorController> {
@@ -14,46 +15,46 @@ class IDGeneratorView extends GetView<IDGeneratorController> {
       init: IDGeneratorController(),
       builder: (_) {
         return Scaffold(
-          appBar: AppBar(
-            title: const Text('Add New Resident'),
-            centerTitle: true,
-          ),
           body: SingleChildScrollView(
             child: Form(
               key: _formKey,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    const Text(
-                      'New Resident Information',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blue,
-                      ),
+              child: Stack(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        const Text(
+                          'New Resident Information',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        _buildNameField(_),
+                        const SizedBox(height: 15),
+                        _buildPhoneNumberField(_),
+                        const SizedBox(height: 15),
+                        _buildCNICField(_),
+                        const SizedBox(height: 15),
+                        _buildRoomTypeDropdown(_),
+                        const SizedBox(height: 15),
+                        _buildACSwitch(_),
+                        const SizedBox(height: 15),
+                        _buildDateSelector(context, _),
+                        const SizedBox(height: 15),
+                        _buildImageSection(_),
+                        const SizedBox(height: 15),
+                        _buildPickImageButton(_),
+                        const SizedBox(height: 30),
+                        _buildSubmitButton(_),
+                      ],
                     ),
-                    const SizedBox(height: 20),
-                    _buildNameField(_),
-                    const SizedBox(height: 15),
-                    _buildPhoneNumberField(_),
-                    const SizedBox(height: 15),
-                    _buildCNICField(_),
-                    const SizedBox(height: 15),
-                    _buildRoomTypeDropdown(_),
-                    const SizedBox(height: 15),
-                    _buildACSwitch(_),
-                    const SizedBox(height: 15),
-                    _buildDateSelector(context, _),
-                    const SizedBox(height: 15),
-                    _buildImageSection(_),
-                    const SizedBox(height: 15),
-                    _buildPickImageButton(_),
-                    const SizedBox(height: 30),
-                    _buildSubmitButton(_),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -210,7 +211,7 @@ class IDGeneratorView extends GetView<IDGeneratorController> {
           padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
         ),
         onPressed: () {
-          controller.pickImage();
+          _showImageSourceDialog(controller);
         },
         child: const Text(
           'Pick Image',
@@ -220,7 +221,38 @@ class IDGeneratorView extends GetView<IDGeneratorController> {
     );
   }
 
-  Center _buildSubmitButton(IDGeneratorController controller) {
+  void _showImageSourceDialog(IDGeneratorController controller) {
+    Get.dialog(
+      AlertDialog(
+        title: Text('Select Image Source'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: Icon(Icons.photo_library),
+              title: Text('Gallery'),
+              onTap: () {
+                Get.back();
+                controller.pickImage(ImageSource.gallery);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.camera_alt),
+              title: Text('Camera'),
+              onTap: () {
+                Get.back();
+                controller.pickImage(ImageSource.camera);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Center _buildSubmitButton(
+    IDGeneratorController controller,
+  ) {
     return Center(
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
@@ -234,7 +266,9 @@ class IDGeneratorView extends GetView<IDGeneratorController> {
         onPressed: () {
           if (_formKey.currentState!.validate()) {
             _formKey.currentState!.save();
-            controller.processFormData(_formKey);
+            controller.processFormData(
+              _formKey,
+            );
           }
         },
         child: const Text(
@@ -309,5 +343,39 @@ class CNICFormatter extends TextInputFormatter {
       text: buffer.toString(),
       selection: TextSelection.collapsed(offset: buffer.length),
     );
+  }
+}
+
+class BackgroundPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.blue.withOpacity(0.1)
+      ..style = PaintingStyle.fill;
+
+    final path = Path()
+      ..moveTo(0, size.height * 0.2)
+      ..quadraticBezierTo(
+          size.width * 0.5, size.height * 0.4, size.width, size.height * 0.2)
+      ..lineTo(size.width, size.height)
+      ..lineTo(0, size.height)
+      ..close();
+
+    canvas.drawPath(path, paint);
+
+    final path2 = Path()
+      ..moveTo(0, size.height * 0.8)
+      ..quadraticBezierTo(
+          size.width * 0.5, size.height * 0.6, size.width, size.height * 0.8)
+      ..lineTo(size.width, 0)
+      ..lineTo(0, 0)
+      ..close();
+
+    canvas.drawPath(path2, paint..color = Colors.blue.withOpacity(0.15));
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return false;
   }
 }

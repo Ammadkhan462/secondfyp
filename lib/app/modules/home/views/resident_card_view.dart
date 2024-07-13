@@ -6,6 +6,7 @@ import 'package:intl/intl.dart'; // For date formatting
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'package:secondfyp/app/modules/home/controllers/home_controller.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ResidentCardView extends GetView {
   final String total;
@@ -120,7 +121,10 @@ class ResidentListView extends StatelessWidget {
 
   Future<Map<String, dynamic>> fetchResidentDetails(String residentId) async {
     try {
+      String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
       DocumentSnapshot residentSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
           .collection('residents')
           .doc(residentId)
           .get();
@@ -151,7 +155,10 @@ class ResidentListView extends StatelessWidget {
 
   Future<List<dynamic>> fetchRoomDetails(String hostelId) async {
     try {
+      String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
       DocumentSnapshot hostelSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
           .collection('hostels')
           .doc(hostelId)
           .get();
@@ -174,6 +181,8 @@ class ResidentListView extends StatelessWidget {
       ),
       body: FutureBuilder<DocumentSnapshot>(
         future: FirebaseFirestore.instance
+            .collection('users')
+            .doc(FirebaseAuth.instance.currentUser?.uid ?? '')
             .collection('hostels')
             .doc(hostelId)
             .get(),
@@ -295,6 +304,47 @@ class ResidentDetailsView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Resident Details'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh),
+            onPressed: () async {
+              await controller.refreshResidentDetails(
+                  residentId, hostelId, roomNumber ?? '');
+              Get.snackbar(
+                  'Refreshed', 'Resident details updated successfully.');
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.delete),
+            onPressed: () async {
+              bool confirmed = await showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text('Confirm Deletion'),
+                    content:
+                        Text('Are you sure you want to delete this resident?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        child: Text('Delete'),
+                      ),
+                    ],
+                  );
+                },
+              );
+              if (confirmed) {
+                await controller.deleteResident(
+                    residentId, hostelId, roomNumber ?? '');
+                Get.back(); // Go back to the previous screen after deletion
+              }
+            },
+          ),
+        ],
       ),
       body: FutureBuilder<Map<String, dynamic>>(
         future: controller.fetchResidentDetailsWithDaysSpent(residentId),
@@ -338,7 +388,7 @@ class ResidentDetailsView extends StatelessWidget {
                 _buildDetailRow('Room Number',
                     roomNumber ?? 'N/A'), // Display room number correctly
                 Text(
-                    'Resident Total: \$${controller.selectedResidentTotal.string}'),
+                    'Resident Total: \Rs${controller.selectedResidentTotal.string}'),
                 SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
@@ -438,7 +488,10 @@ class ChallanGenerator {
 }
 
 Future<List<dynamic>> fetchRoomDetails(String hostelId) async {
+  String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
   DocumentSnapshot hostelSnapshot = await FirebaseFirestore.instance
+      .collection('users')
+      .doc(userId)
       .collection('hostels')
       .doc(hostelId)
       .get();
@@ -452,7 +505,10 @@ Future<List<dynamic>> fetchRoomDetails(String hostelId) async {
 }
 
 Future<List<dynamic>> fetchPrices(String hostelId) async {
+  String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
   DocumentSnapshot hostelSnapshot = await FirebaseFirestore.instance
+      .collection('users')
+      .doc(userId)
       .collection('hostels')
       .doc(hostelId)
       .get();

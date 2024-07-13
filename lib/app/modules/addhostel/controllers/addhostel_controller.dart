@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:secondfyp/app/modules/addhostel/views/addhostel_view.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class AddhostelController extends GetxController {
   var hostelName = ''.obs;
@@ -9,6 +10,8 @@ class AddhostelController extends GetxController {
   var customAttributes = <List<Map<String, dynamic>>>[]
       .obs; // Stores custom attributes for each capacity
   var rooms = <RoomAttributes>[].obs;
+
+  FirebaseAuth _auth = FirebaseAuth.instance;
 
   void removeRoom(int index) {
     rooms.removeAt(index);
@@ -63,8 +66,13 @@ class AddhostelController extends GetxController {
     try {
       print("Saving hostel with name: ${hostelName.value}");
 
+      // Get the current user's ID
+      String userId = _auth.currentUser?.uid ?? '';
+
       // Create a new document with a unique ID
       DocumentReference hostelRef = FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
           .collection('hostels')
           .doc(); // Creates a new document with a unique ID
 
@@ -119,7 +127,10 @@ class AddhostelController extends GetxController {
 
   Future<void> fetchHostelData(String hostelId) async {
     try {
+      String userId = _auth.currentUser?.uid ?? '';
       DocumentSnapshot hostelDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
           .collection('hostels')
           .doc(hostelId)
           .get();

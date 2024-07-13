@@ -31,37 +31,25 @@ class ResidentDataListView extends GetView<ProfiledetailsController> {
                 ),
                 elevation: 4,
                 child: ListTile(
-                  contentPadding: const EdgeInsets.all(16.0),
+                  contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16.0, vertical: 8.0),
                   leading: CircleAvatar(
                     radius: 30,
                     backgroundColor: Colors.blueAccent,
                     child: Text(
-                      resident['name'][0],
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                      ),
+                      resident['name'][0], // First letter of the name
+                      style: const TextStyle(color: Colors.white, fontSize: 24),
                     ),
                   ),
                   title: Text(
                     resident['name'],
                     style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  subtitle: Text(
-                    'cnic: ${resident['cnic']}',
-                    style: const TextStyle(
-                      fontSize: 16,
-                    ),
+                        fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   trailing: Chip(
                     label: Text(
-                      'Status: ${resident['status']}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                      ),
+                      resident['status'],
+                      style: const TextStyle(color: Colors.white),
                     ),
                     backgroundColor: resident['status'] == 'Present'
                         ? Colors.green

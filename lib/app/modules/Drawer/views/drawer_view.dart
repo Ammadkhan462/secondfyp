@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
+import 'package:secondfyp/app/routes/app_pages.dart';
 import 'package:secondfyp/commonwidgets/creatraweritem.dart';
 
 import '../controllers/drawer_controller.dart' as drawer;
@@ -75,11 +76,13 @@ class DrawerView extends GetView<drawer.DrawerController> {
           CreateDrawerItem(
               icon: Icons.account_circle,
               text: 'Profile',
-              onTap: () => Navigator.pop(context)),
+              onTap: () => Get.toNamed(Routes.PROFILEDETAILS)),
           CreateDrawerItem(
               icon: Icons.receipt,
               text: 'Complaint',
               onTap: () {
+                Get.toNamed(Routes.COMPLAINS);
+
                 // Navigator.of(context).push(
                 //     MaterialPageRoute(builder: (ctx) => ComplaintsScreen()));
               }),

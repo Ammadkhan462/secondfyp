@@ -17,6 +17,14 @@ abstract class Routes {
   static const ACCUPANCYALLOC = _Paths.ACCUPANCYALLOC;
   static const IDCONFIRM = _Paths.I_D_GENERATOR + _Paths.IDCONFIRM;
   static const PROFILEDETAILS = _Paths.PROFILEDETAILS;
+  static const NOTIFICATION = _Paths.NOTIFICATION;
+  static const COMPLAINS = _Paths.COMPLAINS;
+  static const RESIDENTDATALIST = _Paths.RESIDENTDATALIST;
+  static const SIGNUP = _Paths.SIGNUP;
+  static const SIGNIN = _Paths.SIGNIN;
+  static const VERIFICATION = _Paths.VERIFICATION;
+  static const SPLASHSCREEN = _Paths.SPLASHSCREEN;
+  static const VERIFICATIONSIGNIN = _Paths.VERIFICATIONSIGNIN;
 }
 
 abstract class _Paths {
@@ -34,4 +42,12 @@ abstract class _Paths {
   static const ACCUPANCYALLOC = '/accupancyalloc';
   static const IDCONFIRM = '/idconfirm';
   static const PROFILEDETAILS = '/profiledetails';
+  static const NOTIFICATION = '/notification';
+  static const COMPLAINS = '/complains';
+  static const RESIDENTDATALIST = '/residentdatalist';
+  static const SIGNUP = '/signup';
+  static const SIGNIN = '/signin';
+  static const VERIFICATION = '/verification';
+  static const SPLASHSCREEN = '/splashscreen';
+  static const VERIFICATIONSIGNIN = '/verificationsignin';
 }

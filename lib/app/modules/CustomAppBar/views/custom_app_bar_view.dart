@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 import 'package:secondfyp/app/modules/DashBoard/controllers/dash_board_controller.dart';
+import 'package:secondfyp/app/routes/app_pages.dart';
 
 import '../controllers/custom_app_bar_controller.dart';
 
@@ -25,11 +26,11 @@ class CustomAppBarView extends GetView<DashBoardController>
             backgroundColor: Colors.transparent,
             actions: <Widget>[
               IconButton(
-                icon:
-                    Icon(Icons.notification_important),
-                onPressed: () {},
+                icon: Icon(Icons.notification_important),
+                onPressed: () {
+                  Get.toNamed(Routes.NOTIFICATION);
+                },
               ),
-                
             ],
             bottom: PreferredSize(
               preferredSize: const Size.fromHeight(kToolbarHeight),
@@ -55,7 +56,6 @@ class CustomAppBarView extends GetView<DashBoardController>
                 ),
               ),
             ),
-            
           );
         });
   }

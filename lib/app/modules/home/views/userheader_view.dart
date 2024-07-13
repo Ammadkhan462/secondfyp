@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:secondfyp/app/modules/home/controllers/user_header_with_buttons_controller.dart';
 import 'package:secondfyp/app/routes/app_pages.dart';
 
-class UserheaderView extends GetView {
+class UserheaderView extends StatelessWidget {
   const UserheaderView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final UserController controller = Get.put(UserController());
+
     return GestureDetector(
       onTap: () {
         Get.toNamed(Routes.PROFILEDETAILS);
@@ -32,34 +36,104 @@ class UserheaderView extends GetView {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            const Row(
+            Row(
               children: [
-                CircleAvatar(
-                  radius: 30,
-                  backgroundImage: AssetImage(
-                      'assets/ammadpic.png'), // Ensure you have this image in your assets folder
-                ),
-                SizedBox(width: 20),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      'Good Morning',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 16,
+                Stack(
+                  children: [
+                    Obx(() {
+                      if (controller.isLoading.value) {
+                        return CircleAvatar(
+                          radius: 30,
+                          backgroundColor: Colors.grey.shade200,
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+                      return CircleAvatar(
+                        radius: 30,
+                        backgroundImage: controller.userData['imageUrl'] != null
+                            ? NetworkImage(controller.userData['imageUrl'])
+                            : AssetImage('assets/ammadpic.png')
+                                as ImageProvider,
+                        child: controller.isImageUploading.value
+                            ? CircularProgressIndicator(color: Colors.white)
+                            : null,
+                      );
+                    }),
+                    if (controller.userData['imageUrl'] == null)
+                      Positioned.fill(
+                        child: IconButton(
+                          icon: Icon(Icons.camera_alt, color: Colors.white),
+                          onPressed: () {
+                            Get.defaultDialog(
+                              title: 'Upload Profile Picture',
+                              content: Column(
+                                children: [
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      controller.pickImage(ImageSource.gallery);
+                                    },
+                                    child: Text('Select from Gallery'),
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      controller.pickImage(ImageSource.camera);
+                                    },
+                                    child: Text('Take a Photo'),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
                       ),
-                    ),
-                    Text(
-                      'Ammad Niazi',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 22,
-                      ),
-                    ),
                   ],
                 ),
+                SizedBox(width: 20),
+                Obx(() {
+                  if (controller.isLoading.value) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Good Morning',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 16,
+                          ),
+                        ),
+                        Text(
+                          'Loading...',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 22,
+                          ),
+                        ),
+                      ],
+                    );
+                  }
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Good Morning',
+                        style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 16,
+                        ),
+                      ),
+                      Text(
+                        controller.userData['firstName'] ?? 'User',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 22,
+                        ),
+                      ),
+                    ],
+                  );
+                }),
               ],
             ),
             IconButton(

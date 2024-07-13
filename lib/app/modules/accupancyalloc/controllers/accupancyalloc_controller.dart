@@ -1,10 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
+import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:secondfyp/app/modules/home/controllers/home_controller.dart';
+import '../controllers/accupancyalloc_controller.dart';
 
 class AccupancyallocController extends GetxController {
   var hostelDetails = HostelAttributes(name: '', rooms: []).obs;
   var hostelId = ''.obs; // Using RxString for reactive updates
+  FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   void onInit() {
@@ -22,7 +26,10 @@ class AccupancyallocController extends GetxController {
   void fetchHostelDetails(String hostelId) async {
     try {
       print('Fetching details for hostel ID: $hostelId');
+      String userId = _auth.currentUser?.uid ?? '';
       var hostelData = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
           .collection('hostels')
           .doc(hostelId)
           .get();
@@ -69,7 +76,7 @@ class RoomAttributes {
   int capacity;
   int currentOccupancy;
   int roomNumber;
-  List<String> residentIds; // Changed from single ID to list of IDs
+  List<String> residentIds;
 
   RoomAttributes({
     this.roomType = 'Single',
@@ -77,7 +84,7 @@ class RoomAttributes {
     this.capacity = 1,
     this.currentOccupancy = 0,
     this.roomNumber = 1,
-    this.residentIds = const [], // Initialize with an empty list
+    this.residentIds = const [],
   });
 
   factory RoomAttributes.fromMap(Map<String, dynamic> map) {
@@ -110,7 +117,10 @@ Future<void> assignResidentToRoomAndUpdateOccupancy(
     return;
   }
 
+  String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
   DocumentReference<Map<String, dynamic>> hostelRef = FirebaseFirestore.instance
+      .collection('users')
+      .doc(userId)
       .collection('hostels')
       .doc(hostelId)
       .withConverter<Map<String, dynamic>>(

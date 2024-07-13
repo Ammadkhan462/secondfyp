@@ -5,10 +5,9 @@ import 'package:secondfyp/app/modules/home/controllers/home_controller.dart';
 import 'package:secondfyp/app/modules/home/views/add_hostel_button_view.dart';
 import 'package:secondfyp/app/modules/home/views/occupancy_card_view.dart';
 import 'package:secondfyp/app/modules/home/views/parcel_card_view.dart';
-import 'package:secondfyp/app/modules/home/views/regular_entry_view.dart';
 import 'package:secondfyp/app/modules/home/views/rent_card.dart';
-import 'package:secondfyp/app/modules/home/views/rent_card_view.dart';
 import 'package:secondfyp/app/modules/home/views/resident_card_view.dart';
+import 'package:secondfyp/app/modules/home/views/rent_card_view.dart';
 import 'package:secondfyp/app/modules/home/views/userheader_view.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -46,11 +45,8 @@ class HomeView extends GetView<HomeController> {
                     filled: occupancy.filled,
                     hostelId: controller.currentHostel.id,
                   ),
-                  RegularEntryView(
-                    entry: RegularEntry.fromOccupancy(occupancy),
-                  ),
                   Obx(() => ResidentCardView(
-                        total: controller.totalResidents.value.toString(),
+                        total: occupancy.capacity,
                         present: controller.presentCount.value.toString(),
                         onLeave: controller.onLeaveResidents.value.toString(),
                         hostelId: controller.currentHostel.id,
@@ -62,24 +58,15 @@ class HomeView extends GetView<HomeController> {
             }
           },
         ),
-        FutureBuilder<Map<String, dynamic>>(
-          future: controller.calculateRentDetails(),
-          builder: (context, rentSnapshot) {
-            if (rentSnapshot.connectionState == ConnectionState.waiting) {
+        FutureBuilder<void>(
+          future: controller.calculateTotalRentForSelectedHostel(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
               return CircularProgressIndicator();
-            } else if (rentSnapshot.hasError) {
-              return Text('Error: ${rentSnapshot.error}');
-            } else if (rentSnapshot.hasData) {
-              var rentDetails = rentSnapshot.data!;
-              return RentCardsView(
-                estimatedFullOccupancyBill:
-                    rentDetails['estimatedFullOccupancyBill'],
-                estimatedCurrentOccupancyBill:
-                    rentDetails['estimatedCurrentOccupancyBill'],
-                totalCurrentBill: rentDetails['totalCurrentBill'],
-              );
+            } else if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
             } else {
-              return Text('No rent data available');
+              return RentCardsView();
             }
           },
         ),

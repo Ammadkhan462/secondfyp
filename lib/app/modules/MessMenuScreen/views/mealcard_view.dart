@@ -5,20 +5,20 @@ import 'package:secondfyp/app/modules/MessMenuScreen/controllers/mess_menu_scree
 import 'package:secondfyp/app/modules/MessMenuScreen/views/showeditmealdialog_view.dart';
 
 class MealcardView extends GetView<MessMenuScreenController> {
-  final String day; // Add this
+  final String day; 
   final String mealName;
   final List<String> meals;
   final String startTime;
   final String endTime;
 
   MealcardView({
-    required this.day, // Add this
+    required this.day, 
     required this.mealName,
     required this.meals,
     required this.startTime,
     required this.endTime,
   }) : assert(
-            meals is List<String>); // Optional: Add this for debugging purposes
+            meals is List<String>); 
 
   @override
   Widget build(BuildContext context) {
@@ -59,17 +59,14 @@ class MealcardView extends GetView<MessMenuScreenController> {
                         IconButton(
                             icon: const Icon(Icons.edit, color: Colors.white70),
                             onPressed: () {
-                              // Example to get dayData - replace with actual logic to get the current day's data
                               Map<String, dynamic> dayData = _.weekMeals
                                   .firstWhere((meal) => meal['day'] == day);
 
-                              // Assuming 'meals' in dayData is a Map<String, dynamic> where value is List<dynamic>
                               List<dynamic> dynamicMealItems =
                                   dayData['meals'][mealName] ?? [];
                               List<String> mealItems =
                                   dynamicMealItems.cast<String>();
 
-                              // Now pass dayData and mealItems to your dialog function
                               showEditMealDialog(
                                   context, dayData, mealName, mealItems);
                             }),

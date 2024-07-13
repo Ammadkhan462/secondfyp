@@ -17,17 +17,34 @@ import '../modules/accupancyalloc/bindings/accupancyalloc_binding.dart';
 import '../modules/accupancyalloc/views/accupancyalloc_view.dart';
 import '../modules/addhostel/bindings/addhostel_binding.dart';
 import '../modules/addhostel/views/addhostel_view.dart';
+import '../modules/complains/bindings/complains_binding.dart';
+import '../modules/complains/views/complains_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
+import '../modules/notification/bindings/notification_binding.dart';
+import '../modules/notification/views/notification_view.dart';
 import '../modules/profiledetails/bindings/profiledetails_binding.dart';
+import '../modules/profiledetails/controllers/profiledetails_controller.dart';
 import '../modules/profiledetails/views/profiledetails_view.dart';
+import '../modules/residentdatalist/bindings/residentdatalist_binding.dart';
+import '../modules/residentdatalist/views/residentdatalist_view.dart';
+import '../modules/signin/bindings/signin_binding.dart';
+import '../modules/signin/views/signin_view.dart';
+import '../modules/signup/bindings/signup_binding.dart';
+import '../modules/signup/views/signup_view.dart';
+import '../modules/splashscreen/bindings/splashscreen_binding.dart';
+import '../modules/splashscreen/views/splashscreen_view.dart';
+import '../modules/verification/bindings/verification_binding.dart';
+import '../modules/verification/views/verification_view.dart';
+import '../modules/verificationsignin/bindings/verificationsignin_binding.dart';
+import '../modules/verificationsignin/views/verificationsignin_view.dart';
 
 part 'app_routes.dart';
 
 class AppPages {
   AppPages._();
 
-  static const INITIAL = Routes.DASH_BOARD;
+  static const INITIAL = Routes.SIGNIN;
 
   static final routes = [
     GetPage(
@@ -83,6 +100,47 @@ class AppPages {
       name: _Paths.PROFILEDETAILS,
       page: () => const ProfiledetailsView(),
       binding: ProfiledetailsBinding(),
+    ),
+    GetPage(
+      name: _Paths.NOTIFICATION,
+      page: () => NotificationView(),
+      binding: NotificationBinding(),
+    ),
+    GetPage(
+      name: _Paths.COMPLAINS,
+      page: () => ComplainsView(),
+      binding: ComplainsBinding(),
+    ),
+    GetPage(
+      name: _Paths.RESIDENTDATALIST,
+      page: () => const ResidentdatalistView(),
+      binding: BindingsBuilder(() => Get.lazyPut<ProfiledetailsController>(
+          () => ProfiledetailsController())),
+    ),
+    GetPage(
+      name: _Paths.SIGNUP,
+      page: () => SignupView(),
+      binding: SignupBinding(),
+    ),
+    GetPage(
+      name: _Paths.SIGNIN,
+      page: () => SignInView(),
+      binding: SigninBinding(),
+    ),
+    GetPage(
+      name: _Paths.VERIFICATION,
+      page: () => VerificationView(),
+      binding: VerificationBinding(),
+    ),
+    GetPage(
+      name: _Paths.SPLASHSCREEN,
+      page: () => const SplashscreenView(),
+      binding: SplashscreenBinding(),
+    ),
+    GetPage(
+      name: _Paths.VERIFICATIONSIGNIN,
+      page: () => VerificationsigninView(),
+      binding: VerificationsigninBinding(),
     ),
   ];
 }

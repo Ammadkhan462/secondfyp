@@ -12,52 +12,52 @@ class IdconfirmView extends GetView<IdconfirmController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Confirmation'),
+        title: const Text('Confirmation'),
         backgroundColor: Colors.blue,
         actions: [
           IconButton(
-            icon: Icon(Icons.copy),
+            icon: const Icon(Icons.copy),
             onPressed: () => _copyToClipboard(documentId),
           ),
         ],
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Icon(Icons.check_circle_outline,
+            const Icon(Icons.check_circle_outline,
                 size: 100, color: Colors.green),
-            SizedBox(height: 20),
-            Text(
+            const SizedBox(height: 20),
+            const Text(
               'Resident has been added successfully!',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             SelectableText(
               'Document ID: $documentId',
-              style: TextStyle(fontSize: 16),
+              style: const TextStyle(fontSize: 16),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () => Get.toNamed('/occupancy-detail'),
-              child: Text('Go to Occupancy Details'),
+              child: const Text('Go to Occupancy Details'),
               style: ElevatedButton.styleFrom(
                 primary: Colors.blue,
                 onPrimary: Colors.white,
-                padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () => _copyToClipboard(documentId),
-              child: Text('Copy Document ID'),
+              child: const Text('Copy Document ID'),
               style: ElevatedButton.styleFrom(
                 primary: Colors.grey,
                 onPrimary: Colors.white,
-                padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
               ),
             ),
           ],
@@ -74,7 +74,7 @@ class IdconfirmView extends GetView<IdconfirmController> {
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: Colors.green,
       colorText: Colors.white,
-      duration: Duration(seconds: 2),
+      duration: const Duration(seconds: 2),
     );
   }
 }

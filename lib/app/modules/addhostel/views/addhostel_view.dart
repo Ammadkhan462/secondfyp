@@ -1,16 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:secondfyp/app/modules/addhostel/views/room_attribute_form_view.dart';
-import 'package:secondfyp/app/modules/home/controllers/home_controller.dart';
 import 'package:secondfyp/app/routes/app_pages.dart';
 import '../controllers/addhostel_controller.dart';
 
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:secondfyp/app/modules/addhostel/views/room_attribute_form_view.dart';
-import 'package:secondfyp/app/modules/home/controllers/home_controller.dart';
-import 'package:secondfyp/app/routes/app_pages.dart';
-import '../controllers/addhostel_controller.dart';
+
 
 class AddHostelDetailsView extends StatefulWidget {
   const AddHostelDetailsView({Key? key}) : super(key: key);
@@ -26,7 +20,7 @@ class _AddHostelDetailsViewState extends State<AddHostelDetailsView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Enter Hostel Details"),
+        title: const Text("Enter Hostel Details"),
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -47,7 +41,7 @@ class _AddHostelDetailsViewState extends State<AddHostelDetailsView> {
                   labelText: 'Hostel Name',
                   labelStyle: TextStyle(color: Colors.blue.shade700),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                    borderSide: const BorderSide(color: Colors.blue, width: 2.0),
                     borderRadius: BorderRadius.circular(10.0),
                   ),
                   enabledBorder: OutlineInputBorder(
@@ -58,13 +52,13 @@ class _AddHostelDetailsViewState extends State<AddHostelDetailsView> {
                 ),
                 onChanged: (val) => controller.hostelName.value = val,
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               TextFormField(
                 decoration: InputDecoration(
                   labelText: 'Maximum Room Capacity',
                   labelStyle: TextStyle(color: Colors.blue.shade700),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                    borderSide: const BorderSide(color: Colors.blue, width: 2.0),
                     borderRadius: BorderRadius.circular(10.0),
                   ),
                   enabledBorder: OutlineInputBorder(
@@ -79,7 +73,7 @@ class _AddHostelDetailsViewState extends State<AddHostelDetailsView> {
                   controller.setMaxCapacity(capacity);
                 },
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Obx(() {
                 return Column(
                   children:
@@ -92,7 +86,7 @@ class _AddHostelDetailsViewState extends State<AddHostelDetailsView> {
                             labelStyle: TextStyle(color: Colors.blue.shade700),
                             focusedBorder: OutlineInputBorder(
                               borderSide:
-                                  BorderSide(color: Colors.blue, width: 2.0),
+                                  const BorderSide(color: Colors.blue, width: 2.0),
                               borderRadius: BorderRadius.circular(10.0),
                             ),
                             enabledBorder: OutlineInputBorder(
@@ -106,7 +100,7 @@ class _AddHostelDetailsViewState extends State<AddHostelDetailsView> {
                             controller.setPrice(index + 1, val);
                           },
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         Obx(() {
                           return Column(
                             children: controller.customAttributes[index]
@@ -123,7 +117,7 @@ class _AddHostelDetailsViewState extends State<AddHostelDetailsView> {
                                           labelStyle: TextStyle(
                                               color: Colors.blue.shade700),
                                           focusedBorder: OutlineInputBorder(
-                                            borderSide: BorderSide(
+                                            borderSide: const BorderSide(
                                                 color: Colors.blue, width: 2.0),
                                             borderRadius:
                                                 BorderRadius.circular(10.0),
@@ -142,7 +136,7 @@ class _AddHostelDetailsViewState extends State<AddHostelDetailsView> {
                                         },
                                       ),
                                     ),
-                                    SizedBox(width: 10),
+                                    const SizedBox(width: 10),
                                     Expanded(
                                       child: TextFormField(
                                         initialValue:
@@ -152,7 +146,7 @@ class _AddHostelDetailsViewState extends State<AddHostelDetailsView> {
                                           labelStyle: TextStyle(
                                               color: Colors.blue.shade700),
                                           focusedBorder: OutlineInputBorder(
-                                            borderSide: BorderSide(
+                                            borderSide: const BorderSide(
                                                 color: Colors.blue, width: 2.0),
                                             borderRadius:
                                                 BorderRadius.circular(10.0),
@@ -175,7 +169,7 @@ class _AddHostelDetailsViewState extends State<AddHostelDetailsView> {
                                       ),
                                     ),
                                     IconButton(
-                                      icon: Icon(Icons.remove_circle,
+                                      icon: const Icon(Icons.remove_circle,
                                           color: Colors.red),
                                       onPressed: () =>
                                           controller.removeCustomAttribute(
@@ -187,31 +181,31 @@ class _AddHostelDetailsViewState extends State<AddHostelDetailsView> {
                             }).toList(),
                           );
                         }),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         TextButton(
                           onPressed: () => setState(() {
                             controller.addCustomAttribute(index);
                           }),
-                          child: Text('Add Attribute'),
+                          child: const Text('Add Attribute'),
                         ),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                       ],
                     );
                   }),
                 );
               }),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () => Get.to(AddhostelView()),
-                child: Text('Proceed to Add Rooms'),
+                onPressed: () => Get.to(const AddhostelView()),
                 style: ElevatedButton.styleFrom(
                   primary: Colors.blue,
-                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                  textStyle: TextStyle(fontSize: 18),
+                  padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                  textStyle: const TextStyle(fontSize: 18),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),
                 ),
+                child: const Text('Proceed to Add Rooms'),
               ),
             ],
           ),
@@ -230,25 +224,25 @@ class HostelSuccessScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Success"),
+        title: const Text("Success"),
         backgroundColor: Colors.blue,
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.check_circle_outline, size: 100, color: Colors.green),
+            const Icon(Icons.check_circle_outline, size: 100, color: Colors.green),
             Text(
               'Hostel "$hostelName" Created Successfully!',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             ElevatedButton(
               onPressed: () => Get.toNamed(Routes.DASH_BOARD),
-              child: Text('Back to Home'),
+              child: const Text('Back to Home'),
               style: ElevatedButton.styleFrom(
                 primary: Colors.blue,
-                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
               ),
             ),
           ],
@@ -269,7 +263,7 @@ class AddhostelView extends GetView<AddhostelController> {
       builder: (controller) {
         return Scaffold(
           appBar: AppBar(
-            title: Text("Add Rooms"),
+            title: const Text("Add Rooms"),
             flexibleSpace: Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -280,7 +274,7 @@ class AddhostelView extends GetView<AddhostelController> {
               ),
             ),
             leading: IconButton(
-              icon: Icon(Icons.add),
+              icon: const Icon(Icons.add),
               onPressed: () => controller.addRoom(),
             ),
           ),
@@ -301,15 +295,15 @@ class AddhostelView extends GetView<AddhostelController> {
                             .toList(),
                       );
                     }),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     ElevatedButton(
                       onPressed: controller.saveHostel,
-                      child: Text('Save Hostel'),
+                      child: const Text('Save Hostel'),
                       style: ElevatedButton.styleFrom(
                         primary: Colors.blue,
                         padding:
-                            EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                        textStyle: TextStyle(fontSize: 18),
+                            const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                        textStyle: const TextStyle(fontSize: 18),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30),
                         ),
