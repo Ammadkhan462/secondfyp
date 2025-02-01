@@ -1,4 +1,5 @@
 {
-    "java.configuration.updateBuildConfiguration": "interactive",
-    "cmake.sourceDirectory": "C:/Users/ammad/Desktop/Flutter/secondfyp/linux"
+  "java.configuration.updateBuildConfiguration": "interactive",
+  "cmake.sourceDirectory": "C:/Users/ammad/Desktop/Flutter/secondfyp/linux",
+  "dart.flutterSdkPath": "~/fvm/versions/3.16.1"
 }

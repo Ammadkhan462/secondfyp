@@ -56,7 +56,7 @@ class RoomAttributeFormView extends GetView<AddhostelController> {
                   onPressed: onRemove,
                   child: Text('Remove Room'),
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.red,
+                    backgroundColor: Colors.red,
                   ),
                 ),
               ],

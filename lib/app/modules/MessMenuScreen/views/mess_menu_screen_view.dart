@@ -14,16 +14,6 @@ class MessMenuScreenView extends GetView<MessMenuScreenController> {
           return Scaffold(
             body: SafeArea(
               child: Stack(children: <Widget>[
-                Positioned.fill(
-                  child: Opacity(
-                    opacity: 0.8, // Adjust the opacity as needed
-                    child: Image.asset(
-                      // Adjust the opacity as needed
-                      'assets/hell.png', // Replace with your image path
-                      fit: BoxFit.cover, // Cover the screen with the image
-                    ),
-                  ),
-                ),
                 Obx(
                   () => ListView.builder(
                     itemCount: _.weekMeals.length,
@@ -35,7 +25,7 @@ class MessMenuScreenView extends GetView<MessMenuScreenController> {
                           style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white),
+                              color: Colors.blue),
                         ),
                         children: <Widget>[
                           MealcardView(
@@ -70,7 +60,90 @@ class MessMenuScreenView extends GetView<MessMenuScreenController> {
                 )
               ]),
             ),
+            floatingActionButton: FloatingActionButton(
+              onPressed: () => showCreateMealDialog(context),
+              child: Icon(Icons.add),
+              backgroundColor: Colors.blue,
+            ),
           );
         });
+  }
+
+  void showCreateMealDialog(BuildContext context) {
+    TextEditingController breakfastController = TextEditingController();
+    TextEditingController lunchController = TextEditingController();
+    TextEditingController dinnerController = TextEditingController();
+    String selectedDay = 'Monday';
+    List<String> days = [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday'
+    ];
+
+    Get.defaultDialog(
+      title: 'Create New Meal',
+      content: Column(
+        children: [
+          DropdownButton<String>(
+            value: selectedDay,
+            onChanged: (String? newValue) {
+              selectedDay = newValue!;
+            },
+            items: days.map<DropdownMenuItem<String>>((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(value),
+              );
+            }).toList(),
+          ),
+          TextFormField(
+            controller: breakfastController,
+            decoration: const InputDecoration(
+              labelText: 'Breakfast',
+              hintText: 'Enter breakfast items',
+            ),
+          ),
+          TextFormField(
+            controller: lunchController,
+            decoration: const InputDecoration(
+              labelText: 'Lunch',
+              hintText: 'Enter lunch items',
+            ),
+          ),
+          TextFormField(
+            controller: dinnerController,
+            decoration: const InputDecoration(
+              labelText: 'Dinner',
+              hintText: 'Enter dinner items',
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Map<String, List<String>> meals = {
+                'Breakfast': breakfastController.text
+                    .split(',')
+                    .map((s) => s.trim())
+                    .toList(),
+                'Lunch': lunchController.text
+                    .split(',')
+                    .map((s) => s.trim())
+                    .toList(),
+                'Dinner': dinnerController.text
+                    .split(',')
+                    .map((s) => s.trim())
+                    .toList(),
+              };
+              controller.createWeekMeal(selectedDay, meals);
+              Get.back(); // Close the dialog
+            },
+            child: const Text('Submit'),
+          )
+        ],
+      ),
+    );
   }
 }

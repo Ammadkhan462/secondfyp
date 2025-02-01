@@ -35,9 +35,11 @@ class ProfiledetailsController extends GetxController {
             .get();
 
         if (snapshot.docs.isNotEmpty) {
-          residentData.value = snapshot.docs
-              .map((doc) => doc.data() as Map<String, dynamic>)
-              .toList();
+          residentData.value = snapshot.docs.map((doc) {
+            var data = doc.data() as Map<String, dynamic>;
+            data['id'] = doc.id; // Add the resident ID to the data map
+            return data;
+          }).toList();
         } else {
           residentData.value = [];
         }
@@ -93,11 +95,14 @@ class ProfiledetailsController extends GetxController {
               .child('profile.jpg');
           await ref.putFile(file);
           final url = await ref.getDownloadURL();
+
           await FirebaseFirestore.instance
               .collection('users')
               .doc(currentUser.uid)
-              .update({'profileImage': url});
-          userData['profileImage'] = url;
+              .update({'imageUrl': url});
+
+          userData['imageUrl'] = url;
+          update();
         }
       } catch (e) {
         print('Failed to upload image: $e');
@@ -110,51 +115,69 @@ class ProfiledetailsController extends GetxController {
   Future<void> deleteResident(String residentId) async {
     try {
       User? currentUser = _auth.currentUser;
-      if (currentUser != null) {
-        DocumentReference residentRef = FirebaseFirestore.instance
+      if (currentUser == null) {
+        print('No user is logged in.');
+        return;
+      }
+
+      // Reference to the resident document
+      DocumentReference residentRef = FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser.uid)
+          .collection('residents')
+          .doc(residentId);
+
+      // Fetch the resident document to check its existence
+      DocumentSnapshot residentSnapshot = await residentRef.get();
+      if (!residentSnapshot.exists) {
+        print('Resident document does not exist.');
+        return;
+      }
+
+      // Get roomNumber from resident data if available
+      var residentData = residentSnapshot.data() as Map<String, dynamic>;
+      String? roomNumber = residentData['roomNumber'];
+
+      // Delete the resident document
+      await residentRef.delete();
+      print('Resident document deleted successfully.');
+
+      // Update room occupancy if roomNumber exists
+      if (roomNumber != null) {
+        QuerySnapshot hostelSnapshot = await FirebaseFirestore.instance
             .collection('users')
             .doc(currentUser.uid)
-            .collection('residents')
-            .doc(residentId);
+            .collection('hostels')
+            .get();
 
-        DocumentSnapshot residentSnapshot = await residentRef.get();
-        if (residentSnapshot.exists) {
-          String roomNumber = residentSnapshot['roomNumber'];
+        if (hostelSnapshot.docs.isNotEmpty) {
+          DocumentSnapshot hostelDoc = hostelSnapshot.docs.first;
+          Map<String, dynamic> hostelData =
+              hostelDoc.data() as Map<String, dynamic>;
+          List<dynamic> rooms = hostelData['rooms'];
 
-          await residentRef.delete();
+          for (var room in rooms) {
+            if (room['roomNumber'].toString() == roomNumber) {
+              room['currentOccupancy'] = room['currentOccupancy'] - 1;
+              room['residentIds'].remove(residentId);
+              break;
+            }
+          }
 
-          // Update the room's current occupancy
-          QuerySnapshot hostelSnapshot = await FirebaseFirestore.instance
+          await FirebaseFirestore.instance
               .collection('users')
               .doc(currentUser.uid)
               .collection('hostels')
-              .get();
-
-          if (hostelSnapshot.docs.isNotEmpty) {
-            DocumentSnapshot hostelDoc = hostelSnapshot.docs.first;
-            Map<String, dynamic> hostelData =
-                hostelDoc.data() as Map<String, dynamic>;
-            List<dynamic> rooms = hostelData['rooms'];
-
-            for (var room in rooms) {
-              if (room['roomNumber'].toString() == roomNumber) {
-                room['currentOccupancy'] = room['currentOccupancy'] - 1;
-                room['residentIds'].remove(residentId);
-                break;
-              }
-            }
-
-            await FirebaseFirestore.instance
-                .collection('users')
-                .doc(currentUser.uid)
-                .collection('hostels')
-                .doc(hostelDoc.id)
-                .update({'rooms': rooms});
-          }
-
-          fetchResidentData();
+              .doc(hostelDoc.id)
+              .update({'rooms': rooms});
+          print('Room occupancy updated successfully.');
         }
+      } else {
+        print('roomNumber not found in resident data.');
       }
+
+      // Refresh the resident data
+      fetchResidentData();
     } catch (e) {
       print('Error deleting resident: $e');
     }

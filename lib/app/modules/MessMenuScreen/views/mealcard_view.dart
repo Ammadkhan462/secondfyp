@@ -56,20 +56,20 @@ class MealcardView extends GetView<MessMenuScreenController> {
                             color: Colors.white,
                           ),
                         ),
-                        IconButton(
-                            icon: const Icon(Icons.edit, color: Colors.white70),
-                            onPressed: () {
-                              Map<String, dynamic> dayData = _.weekMeals
-                                  .firstWhere((meal) => meal['day'] == day);
+                      IconButton(
+  icon: const Icon(Icons.edit, color: Colors.white70),
+  onPressed: () {
+    Map<String, dynamic> dayData = _.weekMeals.firstWhere((meal) => meal['day'] == day);
+    List<dynamic> dynamicMealItems = dayData['meals'][mealName] ?? [];
+    List<String> mealItems = dynamicMealItems.cast<String>();
 
-                              List<dynamic> dynamicMealItems =
-                                  dayData['meals'][mealName] ?? [];
-                              List<String> mealItems =
-                                  dynamicMealItems.cast<String>();
+    String startTime = dayData['startTime'] ?? 'Start Time Not Set';  // Fetch start time
+    String endTime = dayData['endTime'] ?? 'End Time Not Set';  // Fetch end time
 
-                              showEditMealDialog(
-                                  context, dayData, mealName, mealItems);
-                            }),
+    showEditMealDialog(context, dayData, mealName, mealItems, startTime, endTime);
+  }
+),
+
                       ],
                     ),
                     Text(
@@ -95,4 +95,55 @@ class MealcardView extends GetView<MessMenuScreenController> {
           );
         });
   }
+  void showEditMealDialog(BuildContext context, Map<String, dynamic> dayData,
+    String mealName, List<String> mealItems, String startTime, String endTime) {
+  TextEditingController textEditingController = TextEditingController(text: mealItems.isNotEmpty ? mealItems.join(", ") : "");
+  TextEditingController startTimeController = TextEditingController(text: startTime);
+  TextEditingController endTimeController = TextEditingController(text: endTime);
+
+  Get.defaultDialog(
+    title: 'Edit Meal',
+    content: SingleChildScrollView(
+      child: Column(
+        children: [
+          TextFormField(
+            controller: textEditingController,
+            decoration: const InputDecoration(
+              labelText: 'Meal Items',
+              hintText: 'Enter meal items separated by commas',
+            ),
+          ),
+          TextFormField(
+            controller: startTimeController,
+            decoration: const InputDecoration(
+              labelText: 'Start Time',
+              hintText: 'Enter start time',
+            ),
+          ),
+          TextFormField(
+            controller: endTimeController,
+            decoration: const InputDecoration(
+              labelText: 'End Time',
+              hintText: 'Enter end time',
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              // Validate inputs if necessary
+              List<String> updatedMealItems = textEditingController.text.split(',').map((item) => item.trim()).toList();
+              String updatedStartTime = startTimeController.text.trim();
+              String updatedEndTime = endTimeController.text.trim();
+
+              controller.updateMealInFirestore(
+                  dayData, mealName, updatedMealItems, updatedStartTime, updatedEndTime);
+              Get.back(); // Close the dialog
+            },
+            child: const Text('Update'),
+          )
+        ],
+      ),
+    ),
+  );
+}
+
 }

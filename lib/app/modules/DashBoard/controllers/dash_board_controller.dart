@@ -1,47 +1,42 @@
-
+import 'package:secondfyp/app/modules/profiledetails/views/profiledetails_view.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import 'package:secondfyp/app/modules/IDGenerator/views/i_d_generator_view.dart';
 import 'package:secondfyp/app/modules/MessMenuScreen/views/mess_menu_screen_view.dart';
+import 'package:secondfyp/app/modules/account/views/account_view.dart';
 import 'package:secondfyp/app/modules/home/views/home_view.dart';
 
 class DashBoardController extends GetxController {
-  //TODO: Implement DashBoardController
-
-  var selectedIndex = 0.obs; // Make it observable
+  var selectedIndex = 0.obs; // Observable for tab selection
+  var showIDGenerator = false.obs; // New observable to toggle IDGeneratorView
 
   void onItemTapped(int index) {
-    selectedIndex.value = index; // Update observable value
+    selectedIndex.value = index;
+    showIDGenerator.value =
+        false; // Reset ID generator when navigating between tabs
+  }
+
+  void toggleIDGenerator() {
+    showIDGenerator.value =
+        !showIDGenerator.value; // Toggle the ID generator view
   }
 
   final List<Widget> widgetOptions = [
     HomeView(), // Home screen widget
-    IDGeneratorView(), // Add screen widget
+
     MessMenuScreenView(), // Mess Menu screen widget
-    // Add other widgets for navigation items here
-  ];
-  final List<String> appBarTitles = [
-    'Dashboard',
-    'Add New',
-    'Mess Menu',
+    AccountView(), // Expense Manager screen widget
+    ProfiledetailsView(), // Profile screen widget
   ];
 
-  final count = 0.obs;
+  final List<String> appBarTitles = [
+    'Dashboard',
+    'Mess Menu',
+    'Expense Manager',
+    'Profile',
+  ];
 
   @override
   void onInit() {
     super.onInit();
   }
-
-  @override
-  void onReady() {
-    super.onReady();
-  }
-
-  @override
-  void onClose() {
-    super.onClose();
-  }
-
-  void increment() => count.value++;
 }

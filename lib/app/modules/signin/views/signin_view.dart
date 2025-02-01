@@ -2,53 +2,95 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:secondfyp/app/modules/signin/controllers/signin_controller.dart';
 import 'package:secondfyp/app/routes/app_pages.dart';
-import 'package:secondfyp/constants/constant.dart';
-
 
 class SignInView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-
     Get.lazyPut(() => SignInController(), fenix: true);
     final SignInController authController = Get.find();
-    // Gradient background similar to SignUp screen
-    final gradientBackground = BoxDecoration(
-      gradient: LinearGradient(
-        begin: Alignment.topRight,
-        end: Alignment.bottomLeft,
-        colors: [Colors.blue.shade200, Colors.blue.shade600],
-      ),
-    );
 
     return Scaffold(
-      appBar: AppBar(
-        
-        title: Text('Sign In', style: TextStyle(color: Colors.white)),
-        backgroundColor:
-            Colors.blue.shade600, // Ensuring AppBar matches the gradient
-      ),
-      body: Container(
-        decoration: gradientBackground,
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(20.0),
-            child: Form(
-              key: authController.formKey,
-              child: Column(
+      body: Stack(
+        children: [
+          // Background Image
+          Positioned.fill(
+            child: Image.asset(
+              'assets/ammad.jpeg', // Replace with your background image path
+              fit: BoxFit.cover,
+            ),
+          ),
+          // Black Gradient Overlay
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.black.withOpacity(0.6),
+                    Colors.black.withOpacity(0.7),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
+            ),
+          ),
+          // "Login" Title at Top-Left Corner
+          Positioned(
+            top: 50, // Adjust the vertical position
+            left: 20, // Adjust the horizontal position
+            child: GestureDetector(
+              onTap: () => Navigator.pop(context), // Back navigation
+              child: Row(
                 children: [
-                  _buildTextField(authController.emailController, 'Email',
-                      Icons.email, TextInputType.emailAddress),
-                  _buildTextField(authController.passwordController, 'Password',
-                      Icons.lock_outline, TextInputType.text,
-                      isPassword: true),
-                  SizedBox(height: 20),
-                  _buildSignInButton(authController),
-                  _buildSignUpButton(context),
+                  Icon(Icons.arrow_back, color: Colors.white),
+                  SizedBox(width: 8),
+                  Text(
+                    'Login',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
-        ),
+          // Login Form
+          Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20.0),
+              child: Form(
+                key: authController.formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Email TextField
+                    _buildTextField(
+                      authController.emailController,
+                      'Email',
+                      Icons.email,
+                      TextInputType.emailAddress,
+                    ),
+                    // Password TextField
+                    _buildTextField(
+                      authController.passwordController,
+                      'Password',
+                      Icons.lock_outline,
+                      TextInputType.text,
+                      isPassword: true,
+                    ),
+                    SizedBox(height: 20),
+                    // Sign In Button
+                    _buildSignInButton(authController),
+                    // Sign Up Button
+                    _buildSignUpButton(),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -72,7 +114,7 @@ class SignInView extends StatelessWidget {
             borderRadius: BorderRadius.circular(25.0),
             borderSide: BorderSide(color: Colors.deepOrange),
           ),
-          fillColor: Colors.white.withOpacity(0.3),
+          fillColor: Colors.white.withOpacity(0.2),
           filled: true,
         ),
         style: TextStyle(color: Colors.white),
@@ -88,8 +130,8 @@ class SignInView extends StatelessWidget {
       width: double.infinity,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          primary: Colors.deepOrange, // Button color
-          onPrimary: Colors.white, // Text color
+          foregroundColor: Colors.white,
+          backgroundColor: Colors.deepOrange,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),
           ),
@@ -110,7 +152,7 @@ class SignInView extends StatelessWidget {
     );
   }
 
-  Widget _buildSignUpButton(BuildContext context) {
+  Widget _buildSignUpButton() {
     return TextButton(
       onPressed: () => Get.toNamed(Routes.SIGNUP),
       child: Text(

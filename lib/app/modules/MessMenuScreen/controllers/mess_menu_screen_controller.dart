@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-  
+
 class MessMenuScreenController extends GetxController {
   var selectedIndex = 0.obs;
   var weekMeals = <Map<String, dynamic>>[].obs; // This line is crucial
@@ -30,6 +30,22 @@ class MessMenuScreenController extends GetxController {
     selectedIndex.value = index; // Update observable value
   }
 
+  void createWeekMeal(String day, Map<String, List<String>> meals) {
+    final db = FirebaseFirestore.instance;
+    db.collection('weekMeals').add({
+      'day': day,
+      'meals': meals,
+    }).then((result) {
+      print("Meal added successfully.");
+      Get.snackbar("Success", "Meal added successfully.",
+          snackPosition: SnackPosition.BOTTOM);
+    }).catchError((error) {
+      print("Error adding meal: $error");
+      Get.snackbar("Error", "Failed to add meal: $error",
+          snackPosition: SnackPosition.BOTTOM);
+    });
+  }
+
   final count = 0.obs;
   @override
   @override
@@ -38,10 +54,8 @@ class MessMenuScreenController extends GetxController {
   }
 
   void updateMealInFirestore(Map<String, dynamic> dayData, String mealName,
-      String firstMeal, String secondMeal) {
+      List<String> mealItems, String startTime, String endTime) {
     final FirebaseFirestore db = FirebaseFirestore.instance;
-
-    // Ensure 'id' exists and is not null
     String? docId = dayData['id'];
     if (docId == null) {
       print("Document ID is null");
@@ -50,16 +64,16 @@ class MessMenuScreenController extends GetxController {
       return;
     }
     Map<String, dynamic> updatedMeals = {
-      'meals': {
-        ...dayData['meals'],
-        mealName: [firstMeal, secondMeal]
-      }
+      'meals': {...dayData['meals'], mealName: mealItems},
+      'startTime': startTime, // Update start time
+      'endTime': endTime // Update end time
     };
 
     db.collection('weekMeals').doc(docId).update(updatedMeals).then((_) {
       print('Meal updated successfully');
       Get.snackbar("Update Success", "Meal updated successfully.",
           snackPosition: SnackPosition.BOTTOM);
+      update();
     }).catchError((error) {
       print('Error updating meal: $error');
       Get.snackbar("Update Failed", "Error updating meal: $error",

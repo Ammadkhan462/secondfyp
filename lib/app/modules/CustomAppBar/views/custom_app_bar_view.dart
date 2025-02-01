@@ -33,7 +33,7 @@ class CustomAppBarView extends GetView<DashBoardController>
               ),
             ],
             bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(kToolbarHeight),
+              preferredSize: Size.fromHeight(kToolbarHeight ),
               child: Container(
                 width: MediaQuery.of(context).size.width * 0.95,
                 margin: EdgeInsets.all(8.0),

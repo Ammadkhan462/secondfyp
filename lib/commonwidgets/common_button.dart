@@ -14,7 +14,7 @@ class CommonButton extends StatelessWidget {
 
   final double? fontsizee;
   final VoidCallback? action;
-  final Color? primary;
+  final Color? backgroundColor;
   final double? height;
   final Color? textColor;
   final Color? shadowColor;
@@ -36,7 +36,7 @@ class CommonButton extends StatelessWidget {
 
     this.fontsizee,
     this.iconData,
-    this.primary = Colors.transparent,
+    this.backgroundColor = Colors.transparent,
     this.textColor = Colors.white,
     this.shadowColor = Colors.transparent,
     this.iconAssetPath,
@@ -92,7 +92,7 @@ class CommonButton extends StatelessWidget {
                     color: bordercolors ?? Colors.transparent,
                     width: borderside ?? 0),
           ),
-          backgroundColor: primary,
+          backgroundColor: backgroundColor,
           foregroundColor: textColor,
           shadowColor: shadowColor,
           padding: EdgeInsets.zero,

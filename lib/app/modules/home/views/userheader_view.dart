@@ -1,15 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:secondfyp/app/modules/home/controllers/user_header_with_buttons_controller.dart';
 import 'package:secondfyp/app/routes/app_pages.dart';
+import 'package:secondfyp/app/modules/profiledetails/controllers/profiledetails_controller.dart';
 
 class UserheaderView extends StatelessWidget {
   const UserheaderView({Key? key}) : super(key: key);
+  String _getGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) {
+      return 'Good Morning';
+    } else if (hour < 17) {
+      return 'Good Afternoon';
+    } else {
+      return 'Good Evening';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final UserController controller = Get.put(UserController());
+    final ProfiledetailsController controller =
+        Get.put(ProfiledetailsController());
 
     return GestureDetector(
       onTap: () {
@@ -59,33 +70,6 @@ class UserheaderView extends StatelessWidget {
                             : null,
                       );
                     }),
-                    if (controller.userData['imageUrl'] == null)
-                      Positioned.fill(
-                        child: IconButton(
-                          icon: Icon(Icons.camera_alt, color: Colors.white),
-                          onPressed: () {
-                            Get.defaultDialog(
-                              title: 'Upload Profile Picture',
-                              content: Column(
-                                children: [
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      controller.pickImage(ImageSource.gallery);
-                                    },
-                                    child: Text('Select from Gallery'),
-                                  ),
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      controller.pickImage(ImageSource.camera);
-                                    },
-                                    child: Text('Take a Photo'),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                      ),
                   ],
                 ),
                 SizedBox(width: 20),
@@ -95,7 +79,8 @@ class UserheaderView extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Good Morning',
+                          _getGreeting(),
+                          // Dynamic greeting
                           style: TextStyle(
                             color: Colors.white70,
                             fontSize: 16,
@@ -117,7 +102,7 @@ class UserheaderView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Good Morning',
+                        _getGreeting(), // Dynamic greeting
                         style: TextStyle(
                           color: Colors.white70,
                           fontSize: 16,

@@ -1,19 +1,23 @@
-import 'package:flutter/material.dart';
+// cached_image_widget.dart
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
 
-class CommonCachedNetworkImage extends StatelessWidget {
+class CachedImageWidget extends StatelessWidget {
   final String imageUrl;
   final double? width;
   final double? height;
-  final BoxFit? fit;
+  final BoxFit fit;
+  final Widget? placeholder;
+  final Widget? errorWidget;
 
-  const CommonCachedNetworkImage({
-    Key? key,
+  CachedImageWidget({
     required this.imageUrl,
     this.width,
     this.height,
-    this.fit = BoxFit.cover, // Default BoxFit can be overridden
-  }) : super(key: key);
+    this.fit = BoxFit.cover,
+    this.placeholder,
+    this.errorWidget,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +26,8 @@ class CommonCachedNetworkImage extends StatelessWidget {
       width: width,
       height: height,
       fit: fit,
-      errorWidget: (context, url, error) => const Icon(Icons.error),
+      placeholder: (context, url) => placeholder ?? CircularProgressIndicator(),
+      errorWidget: (context, url, error) => errorWidget ?? Icon(Icons.error),
     );
   }
 }

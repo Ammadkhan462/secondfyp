@@ -10,7 +10,6 @@ class CustomAppBarController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    
   }
 
   void fetchHostelDetails(String hostelId) async {

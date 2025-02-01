@@ -80,13 +80,6 @@ class AppPages {
       binding: MessMenuScreenBinding(),
     ),
     GetPage(
-      name: _Paths.CUSTOM_APP_BAR,
-      page: () => CustomAppBarView(
-        screenTitle: '',
-      ),
-      binding: CustomAppBarBinding(),
-    ),
-    GetPage(
       name: _Paths.ADDHOSTEL,
       page: () => const AddHostelDetailsView(),
       binding: AddhostelBinding(),

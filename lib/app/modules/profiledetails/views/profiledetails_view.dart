@@ -1,3 +1,4 @@
+import 'package:secondfyp/commonwidgets/cachednetworkimage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:secondfyp/app/routes/app_pages.dart';
@@ -31,10 +32,21 @@ class ProfiledetailsView extends GetView<ProfiledetailsController> {
                     );
                   } else if (controller.userData['imageUrl'] != null &&
                       controller.userData['imageUrl'].isNotEmpty) {
-                    return CircleAvatar(
-                      radius: 30,
-                      backgroundImage:
-                          NetworkImage(controller.userData['imageUrl']),
+                    return GestureDetector(
+                      onTap: () => controller.pickProfileImage(),
+                      child: ClipOval(
+                        child: CircleAvatar(
+                          radius: 30,
+                          child: CachedImageWidget(
+                            imageUrl: controller.userData['imageUrl'],
+                            width: 60,
+                            height: 60,
+                            fit: BoxFit.cover,
+                            placeholder: Icon(Icons.person, size: 30),
+                            errorWidget: Icon(Icons.error),
+                          ),
+                        ),
+                      ),
                     );
                   } else {
                     return GestureDetector(
@@ -54,7 +66,7 @@ class ProfiledetailsView extends GetView<ProfiledetailsController> {
                   '${controller.userData['firstName']} ${controller.userData['lastName']}',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
-                subtitle: Text('Primary'),
+                subtitle: Text('backgroundColor'),
                 trailing: IconButton(
                   icon: Icon(Icons.edit),
                   onPressed: () {
@@ -65,11 +77,12 @@ class ProfiledetailsView extends GetView<ProfiledetailsController> {
               Divider(),
               _buildInfoItem('Email', controller.userData['email'] ?? '',
                   Icons.email, () {}),
-              SizedBox(height: 20),
-              _buildInfoItem('Expiration date', '21/09/2023'),
-              _buildInfoItem('Last login', '28/06/2024 22:22:35'),
-              _buildInfoItem('Created time', '06/09/2023 03:18:06'),
-              _buildInfoItem('Resident Data', '', Icons.people, () {
+
+              // _buildInfoItem('Expiration date', '21/09/2023'),
+              // _buildInfoItem('Last login', '28/06/2024 22:22:35'),
+              // _buildInfoItem('Created time', '06/09/2023 03:18:06'),
+              _buildInfoItem('Resident Data',
+                  'All of your Hostels resident data', Icons.people, () {
                 Get.toNamed(Routes.RESIDENTDATALIST);
               }),
               Spacer(),
@@ -81,7 +94,7 @@ class ProfiledetailsView extends GetView<ProfiledetailsController> {
                   icon: Icon(Icons.logout, color: Colors.white),
                   label: Text('Logout', style: TextStyle(color: Colors.white)),
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.red, // Background color
+                    backgroundColor: Colors.red, // Background color
                     padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
@@ -100,22 +113,52 @@ class ProfiledetailsView extends GetView<ProfiledetailsController> {
     );
   }
 
-  Widget _buildInfoItem(String label, String value,
+  Widget _buildInfoItem(String label, String? value,
       [IconData? icon, Function()? onTap]) {
-    return Expanded(
-      child: ListTile(
-        contentPadding: EdgeInsets.zero,
-        leading: icon != null ? Icon(icon, color: Colors.grey) : null,
-        title: Text(
-          label,
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
+    if (value == null) {
+      // Use a Container when the subtitle is not available
+      return Container(
+        alignment: Alignment.center,
+        padding: EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (icon != null) Icon(icon, color: Colors.grey),
+            if (icon != null) SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.grey,
+                fontSize: 16,
+              ),
+            ),
+          ],
         ),
-        subtitle: Text(value),
-        trailing: onTap != null
-            ? IconButton(
-                icon: Icon(Icons.edit, color: Colors.grey), onPressed: onTap)
-            : null,
-      ),
-    );
+      );
+    } else {
+      // Use ListTile when the subtitle is available
+      return Container(
+        child: ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: icon != null ? Icon(icon, color: Colors.grey) : null,
+          title: Text(
+            label,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.grey,
+              fontSize: 16,
+            ),
+          ),
+          subtitle: Text(value),
+          trailing: onTap != null
+              ? IconButton(
+                  icon: Icon(Icons.edit, color: Colors.grey),
+                  onPressed: onTap,
+                )
+              : null,
+        ),
+      );
+    }
   }
 }

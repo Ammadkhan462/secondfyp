@@ -4,8 +4,6 @@ import 'package:secondfyp/app/modules/addhostel/views/room_attribute_form_view.d
 import 'package:secondfyp/app/routes/app_pages.dart';
 import '../controllers/addhostel_controller.dart';
 
-
-
 class AddHostelDetailsView extends StatefulWidget {
   const AddHostelDetailsView({Key? key}) : super(key: key);
 
@@ -41,7 +39,8 @@ class _AddHostelDetailsViewState extends State<AddHostelDetailsView> {
                   labelText: 'Hostel Name',
                   labelStyle: TextStyle(color: Colors.blue.shade700),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.blue, width: 2.0),
+                    borderSide:
+                        const BorderSide(color: Colors.blue, width: 2.0),
                     borderRadius: BorderRadius.circular(10.0),
                   ),
                   enabledBorder: OutlineInputBorder(
@@ -58,7 +57,8 @@ class _AddHostelDetailsViewState extends State<AddHostelDetailsView> {
                   labelText: 'Maximum Room Capacity',
                   labelStyle: TextStyle(color: Colors.blue.shade700),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.blue, width: 2.0),
+                    borderSide:
+                        const BorderSide(color: Colors.blue, width: 2.0),
                     borderRadius: BorderRadius.circular(10.0),
                   ),
                   enabledBorder: OutlineInputBorder(
@@ -85,8 +85,8 @@ class _AddHostelDetailsViewState extends State<AddHostelDetailsView> {
                             labelText: 'Base Price for capacity ${index + 1}',
                             labelStyle: TextStyle(color: Colors.blue.shade700),
                             focusedBorder: OutlineInputBorder(
-                              borderSide:
-                                  const BorderSide(color: Colors.blue, width: 2.0),
+                              borderSide: const BorderSide(
+                                  color: Colors.blue, width: 2.0),
                               borderRadius: BorderRadius.circular(10.0),
                             ),
                             enabledBorder: OutlineInputBorder(
@@ -198,8 +198,9 @@ class _AddHostelDetailsViewState extends State<AddHostelDetailsView> {
               ElevatedButton(
                 onPressed: () => Get.to(const AddhostelView()),
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.blue,
-                  padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                  backgroundColor: Colors.blue,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                   textStyle: const TextStyle(fontSize: 18),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
@@ -231,7 +232,8 @@ class HostelSuccessScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.check_circle_outline, size: 100, color: Colors.green),
+            const Icon(Icons.check_circle_outline,
+                size: 100, color: Colors.green),
             Text(
               'Hostel "$hostelName" Created Successfully!',
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -241,8 +243,9 @@ class HostelSuccessScreen extends StatelessWidget {
               onPressed: () => Get.toNamed(Routes.DASH_BOARD),
               child: const Text('Back to Home'),
               style: ElevatedButton.styleFrom(
-                primary: Colors.blue,
-                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+                backgroundColor: Colors.blue,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
               ),
             ),
           ],
@@ -300,9 +303,9 @@ class AddhostelView extends GetView<AddhostelController> {
                       onPressed: controller.saveHostel,
                       child: const Text('Save Hostel'),
                       style: ElevatedButton.styleFrom(
-                        primary: Colors.blue,
-                        padding:
-                            const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                        backgroundColor: Colors.blue,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 50, vertical: 15),
                         textStyle: const TextStyle(fontSize: 18),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30),

@@ -8,51 +8,90 @@ class SignupView extends StatelessWidget {
   Widget build(BuildContext context) {
     final SignupController authController = Get.put(SignupController());
 
-    // Gradient background
-    final gradientBackground = BoxDecoration(
-      gradient: LinearGradient(
-        begin: Alignment.topRight,
-        end: Alignment.bottomLeft,
-        colors: [Colors.blue.shade200, Colors.blue.shade600],
-      ),
-    );
-
     return Scaffold(
-      appBar:
-          AppBar(title: Text('Sign Up', style: TextStyle(color: Colors.white))),
-      body: Container(
-        decoration: gradientBackground,
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(20.0),
-            child: Form(
-              key: authController.formKey,
-              child: Column(
-                children: [
-                  _buildTextField(authController.firstNameController,
-                      'First Name', Icons.person),
-                  _buildTextField(authController.lastNameController,
-                      'Last Name', Icons.person_outline),
-                  _buildTextField(
-                      authController.emailController, 'Email', Icons.email,
-                      keyboardType: TextInputType.emailAddress),
-                  _buildTextField(authController.mobileNumberController,
-                      'Mobile Number', Icons.phone_android,
-                      keyboardType: TextInputType.phone),
-                  _buildTextField(authController.passwordController, 'Password',
-                      Icons.lock_outline,
-                      isPassword: true),
-                  _buildTextField(authController.dateOfBirthController,
-                      'Date of Birth', Icons.calendar_today,
-                      keyboardType: TextInputType.datetime),
-                  _buildTermsAndConditions(authController),
-                  _buildSignUpButton(authController),
-                  _buildSignInButton(),
-                ],
+      body: Stack(
+        children: [
+          // Background Image
+          Positioned.fill(
+            child: Image.asset(
+              'assets/ammad.jpeg', // Replace with your background image path
+              fit: BoxFit.cover,
+            ),
+          ),
+          // Black Gradient Overlay
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.black.withOpacity(0.4),
+                    Colors.black.withOpacity(0.7),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
               ),
             ),
           ),
-        ),
+          // "Sign Up" Title Fixed at Top
+          Align(
+            alignment: Alignment.topLeft,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 50.0, left: 20.0),
+              child: GestureDetector(
+                onTap: () => Navigator.pop(context), // Back navigation
+                child: Row(
+                  children: [
+                    Icon(Icons.arrow_back, color: Colors.white),
+                    SizedBox(width: 8),
+                    Text(
+                      'Sign Up',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          // Scrollable Form Content
+          Padding(
+            padding:
+                const EdgeInsets.only(top: 100), // Add padding to avoid overlap
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20.0),
+              child: Form(
+                key: authController.formKey,
+                child: Column(
+                  children: [
+                    _buildTextField(authController.firstNameController,
+                        'First Name', Icons.person),
+                    _buildTextField(authController.lastNameController,
+                        'Last Name', Icons.person_outline),
+                    _buildTextField(
+                        authController.emailController, 'Email', Icons.email,
+                        keyboardType: TextInputType.emailAddress),
+                    _buildTextField(authController.mobileNumberController,
+                        'Mobile Number', Icons.phone_android,
+                        keyboardType: TextInputType.phone),
+                    _buildTextField(authController.passwordController,
+                        'Password', Icons.lock_outline,
+                        isPassword: true),
+                    _buildTextField(authController.dateOfBirthController,
+                        'Date of Birth', Icons.calendar_today,
+                        keyboardType: TextInputType.datetime),
+                    _buildTermsAndConditions(authController),
+                    _buildSignUpButton(authController),
+                    _buildSignInButton(),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -93,12 +132,15 @@ class SignupView extends StatelessWidget {
         Obx(() => Checkbox(
               value: authController.isChecked.value,
               onChanged: (value) => authController.toggleCheckbox(),
-              checkColor: Colors.blue, // color of tick Mark
+              checkColor: Colors.blue,
               activeColor: Colors.white,
             )),
         Expanded(
-            child: Text('I accept the terms and conditions',
-                style: TextStyle(color: Colors.white))),
+          child: Text(
+            'I accept the terms and conditions',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
       ],
     );
   }
@@ -108,8 +150,12 @@ class SignupView extends StatelessWidget {
       width: double.infinity,
       child: Obx(() => ElevatedButton(
             style: ElevatedButton.styleFrom(
-              primary: Colors.deepOrange, // Button color
-              onPrimary: Colors.white, // Text color
+              foregroundColor: Colors.white,
+              backgroundColor: Colors.deepOrange, // Active button color
+              disabledBackgroundColor:
+                  Colors.deepOrange.withOpacity(0.5), // Disabled color
+              disabledForegroundColor:
+                  Colors.white.withOpacity(0.5), // Disabled text color
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30),
               ),
@@ -123,7 +169,7 @@ class SignupView extends StatelessWidget {
                       );
                     }
                   }
-                : null,
+                : null, // Ensure the button is disabled only when necessary
             child: authController.isLoading.value
                 ? CircularProgressIndicator(color: Colors.white)
                 : Text('Sign Up'),
@@ -136,8 +182,10 @@ class SignupView extends StatelessWidget {
       onPressed: () {
         Get.offAllNamed(Routes.SIGNIN);
       },
-      child: Text('Already have an account? Sign In',
-          style: TextStyle(color: Colors.white)),
+      child: Text(
+        'Already have an account? Sign In',
+        style: TextStyle(color: Colors.white),
+      ),
     );
   }
 }

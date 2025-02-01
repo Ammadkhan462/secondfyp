@@ -8,7 +8,8 @@ class NotificationView extends StatefulWidget {
 }
 
 class _NotificationViewState extends State<NotificationView> {
-  final NotificationController _notificationController = Get.put(NotificationController());
+  final NotificationController _notificationController =
+      Get.put(NotificationController());
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _bodyController = TextEditingController();
 
@@ -65,7 +66,8 @@ class _NotificationViewState extends State<NotificationView> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(color: Colors.blue.shade700, width: 2.0),
+                          borderSide: BorderSide(
+                              color: Colors.blue.shade700, width: 2.0),
                         ),
                       ),
                     ),
@@ -84,7 +86,8 @@ class _NotificationViewState extends State<NotificationView> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(color: Colors.blue.shade700, width: 2.0),
+                          borderSide: BorderSide(
+                              color: Colors.blue.shade700, width: 2.0),
                         ),
                       ),
                       maxLines: 3,
@@ -98,15 +101,16 @@ class _NotificationViewState extends State<NotificationView> {
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        primary: Colors.blue.shade700,
-                        onPrimary: Colors.white,
+                        backgroundColor: Colors.blue.shade700,
+                        foregroundColor: Colors.white,
                         padding: EdgeInsets.symmetric(vertical: 15.0),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30.0),
                         ),
                         elevation: 5,
                       ),
-                      child: Text('Send Notification', style: TextStyle(fontSize: 18)),
+                      child: Text('Send Notification',
+                          style: TextStyle(fontSize: 18)),
                     ),
                   ],
                 ),

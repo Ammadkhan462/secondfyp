@@ -73,14 +73,7 @@ class _SplashscreenViewState extends State<SplashscreenView>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    'THE INTELLISTAY',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
+                  Image.asset('assets/logotransparent.png',width: 300,height: 300,)
                 ],
               ),
             ),

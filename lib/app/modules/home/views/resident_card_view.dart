@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -6,7 +8,7 @@ import 'package:intl/intl.dart'; // For date formatting
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'package:secondfyp/app/modules/home/controllers/home_controller.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' as auth;
 
 class ResidentCardView extends GetView {
   final String total;
@@ -43,12 +45,12 @@ class ResidentCardView extends GetView {
                   Text('Resident',
                       style:
                           TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                  TextButton(
-                    onPressed: () {
-                      // Action for "Leave Requests"
-                    },
-                    child: Text('Leave Requests'),
-                  ),
+                  // TextButton(
+                  //   onPressed: () {
+                  //     // Action for "Leave Requests"
+                  //   },
+                  //   // child: Text('Leave Requests'),
+                  // ),
                 ],
               ),
               SizedBox(height: 16),
@@ -98,11 +100,13 @@ class Resident {
   String total;
   String present;
   String onLeave;
+  double discount;
 
   Resident({
     required this.total,
     required this.present,
     required this.onLeave,
+    this.discount = 0.0,
   });
 
   factory Resident.fromMap(Map<String, dynamic> map) {
@@ -110,6 +114,7 @@ class Resident {
       total: map['total']?.toString() ?? '0',
       present: map['present']?.toString() ?? '0',
       onLeave: map['onLeave']?.toString() ?? '0',
+      discount: (map['discount']?.toDouble() ?? 0.0),
     );
   }
 }
@@ -299,8 +304,11 @@ class ResidentDetailsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final HomeController controller = Get.find<HomeController>();
+
     controller.fetchAndCalculateTotalAmount(
-        residentId, hostelId, roomNumber ?? ''); // Fetch total amount
+        residentId, hostelId, roomNumber ?? '');
+    controller.fetchResidentDetails(residentId);
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Resident Details'),
@@ -340,77 +348,268 @@ class ResidentDetailsView extends StatelessWidget {
               if (confirmed) {
                 await controller.deleteResident(
                     residentId, hostelId, roomNumber ?? '');
-                Get.back(); // Go back to the previous screen after deletion
+                Get.back();
               }
             },
           ),
         ],
       ),
-      body: FutureBuilder<Map<String, dynamic>>(
-        future: controller.fetchResidentDetailsWithDaysSpent(residentId),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
-          if (!snapshot.hasData) {
-            return Center(child: Text('Resident not found'));
-          }
+      body: Obx(() {
+        if (controller.isLoading.value) {
+          return Center(child: CircularProgressIndicator());
+        }
 
-          var residentData = snapshot.data!;
-          print("Resident data: $residentData"); // Debug print
+        var residentData = controller.residentData.value;
 
-          // Pass the total amount and attribute price to the challan generator
-          pw.Document challan = ChallanGenerator.generateChallan(
-              residentData,
-              roomDetails,
-              prices,
-              roomNumber ?? '',
-              controller.basePrice.value,
-              controller.attributePrice.value);
+        if (residentData == null) {
+          return Center(child: Text('Resident not found'));
+        }
 
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        double discount = residentData['discount'] ?? 0.0;
+        double perDayRent =
+            controller.basePrice.value + controller.attributePrice.value;
+
+        DateTime joinDate =
+            (residentData['selectedDate'] as Timestamp).toDate();
+        DateTime currentDate = DateTime.now();
+
+        double advancePayment = double.tryParse(
+                residentData['advancePayment']?.toString() ?? '0.0') ??
+            0.0;
+
+        int calculateDaysInMonth(DateTime date) {
+          return DateTime(date.year, date.month + 1, 0).day;
+        }
+
+        // Calculate the total number of months from the joining month to the current month
+        int monthsSinceJoining = (currentDate.year - joinDate.year) * 12 +
+            currentDate.month -
+            joinDate.month;
+
+        // Ensure at least 1 month is calculated
+        monthsSinceJoining =
+            (monthsSinceJoining + 1).clamp(1, double.infinity).toInt();
+
+        List<dynamic> paidChallans = residentData['paidChallans'] ?? [];
+
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: ListView(
+            children: [
+              _buildResidentInfoCard(residentData, roomNumber, perDayRent,
+                  discount, advancePayment),
+              SizedBox(height: 20),
+              Text(
+                'Challans',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 10),
+              ...List.generate(monthsSinceJoining, (index) {
+                return _buildChallanCard(
+                  context,
+                  controller,
+                  residentData,
+                  roomDetails,
+                  prices,
+                  roomNumber ?? '',
+                  discount,
+                  advancePayment,
+                  joinDate,
+                  currentDate,
+                  index,
+                  monthsSinceJoining, // Pass the calculated value here
+                  paidChallans.contains(index),
+                );
+              }),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  _showDiscountDialog(context, controller, residentId);
+                },
+                child: Text('Apply Discount'),
+              ),
+            ],
+          ),
+        );
+      }),
+    );
+  }
+
+  Widget _buildChallanCard(
+    BuildContext context,
+    HomeController controller,
+    Map<String, dynamic> residentData,
+    List<dynamic> roomDetails,
+    List<dynamic> prices,
+    String roomNumber,
+    double discount,
+    double advancePayment,
+    DateTime joinDate,
+    DateTime currentDate,
+    int index,
+    int monthsSinceJoining, // Add this parameter to use it in the method
+    bool isPaid,
+  ) {
+    DateTime challanMonth = DateTime(joinDate.year, joinDate.month + index, 1);
+    DateTime startDate;
+    DateTime endDate;
+
+    if (index == 0) {
+      // First challan: Start from the join date in July and end at the end of July
+      startDate = joinDate;
+      endDate = DateTime(joinDate.year, joinDate.month + 1, 0);
+    } else {
+      // Subsequent challans: Start from the 1st of the month and end either at the end of the month or the current date (if it's the current month)
+      startDate = DateTime(challanMonth.year, challanMonth.month, 1);
+      endDate = (index == monthsSinceJoining - 1)
+          ? currentDate
+          : DateTime(challanMonth.year, challanMonth.month + 1, 0);
+    }
+
+    int daysInPeriod = endDate.difference(startDate).inDays + 1;
+    double periodRent = daysInPeriod *
+        (controller.basePrice.value + controller.attributePrice.value);
+
+    if (index == 0 && advancePayment > 0) {
+      periodRent -= advancePayment;
+    }
+    periodRent -= discount;
+
+    return Card(
+      elevation: 4,
+      margin: EdgeInsets.symmetric(vertical: 8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildDetailRow('Name', residentData['name'] ?? 'Unknown'),
-                _buildDetailRow('CNIC', residentData['cnic'] ?? 'N/A'),
-                _buildDetailRow(
-                    'Phone Number', residentData['phoneNumber'] ?? 'N/A'),
-                _buildDetailRow('Room Type', residentData['roomType'] ?? 'N/A'),
-                _buildDetailRow('Joining Date',
-                    formatDateString(residentData['selectedDate'])),
-                _buildDetailRow(
-                    'Days Spent', residentData['daysSpent'].toString()),
-                _buildDetailRow('Room Number',
-                    roomNumber ?? 'N/A'), // Display room number correctly
                 Text(
-                    'Resident Total: \Rs${controller.selectedResidentTotal.string}'),
-                SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    print('Download button pressed'); // Debug statement
-                    Printing.layoutPdf(
-                      onLayout: (PdfPageFormat format) async {
-                        print('Generating PDF'); // Debug statement
-                        return challan.save();
-                      },
-                    );
-                  },
-                  child: Text('Download Challan'),
+                  'Challan for ${DateFormat('MMMM yyyy').format(challanMonth)}',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  'Rs${periodRent.toStringAsFixed(2)}',
+                  style: TextStyle(fontSize: 16, color: Colors.black54),
                 ),
               ],
             ),
-          );
-        },
+            SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Printing.layoutPdf(
+                      onLayout: (PdfPageFormat format) async {
+                        return ChallanGenerator.generateChallan(
+                          residentData,
+                          roomDetails,
+                          prices,
+                          roomNumber,
+                          controller.basePrice.value,
+                          controller.attributePrice.value,
+                          discount,
+                          advancePayment,
+                          index,
+                          startDate,
+                          endDate,
+                        ).save();
+                      },
+                    );
+                  },
+                  child: Text('Download'),
+                ),
+                isPaid
+                    ? ElevatedButton(
+                        onPressed: null,
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green),
+                        child: Text('Paid'),
+                      )
+                    : ElevatedButton(
+                        onPressed: () {
+                          _showPasswordDialog(
+                              context, controller, residentId, index);
+                        },
+                        child: Text('Mark as Paid'),
+                      ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  String formatDateString(dynamic date) {
+  Widget _buildResidentInfoCard(
+    Map<String, dynamic> residentData,
+    String? roomNumber,
+    double perDayRent,
+    double discount,
+    double advancePayment,
+  ) {
+    return Card(
+      elevation: 5,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildDetailRow(
+              'Name',
+              residentData['name']?.toString() ?? 'Unknown',
+            ),
+            _buildDetailRow(
+              'CNIC',
+              residentData['cnic']?.toString() ?? 'N/A',
+            ),
+            _buildDetailRow(
+              'Phone Number',
+              residentData['phoneNumber']?.toString() ?? 'N/A',
+            ),
+            _buildDetailRow(
+              'Room Type',
+              residentData['roomType']?.toString() ?? 'N/A',
+            ),
+            _buildDetailRow(
+              'Joining Date',
+              _formatDateString(residentData['selectedDate']),
+            ),
+            _buildDetailRow(
+              'Room Number',
+              roomNumber ?? 'N/A',
+            ),
+            _buildDetailRow(
+              'Discount',
+              discount.toString(),
+            ),
+            _buildDetailRow(
+              'Advance Payment',
+              advancePayment.toString(),
+            ),
+            _buildDetailRow(
+              'Per Day Rent',
+              'Rs${perDayRent.toStringAsFixed(2)}',
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  int calculateDaysInMonth(DateTime date) {
+    return DateTime(date.year, date.month + 1, 0).day;
+  }
+
+  String _formatDateString(dynamic date) {
     if (date is Timestamp) {
       return DateFormat('yyyy-MM-dd').format(date.toDate());
     } else {
@@ -436,46 +635,175 @@ class ResidentDetailsView extends StatelessWidget {
       ),
     );
   }
+
+  void _showPasswordDialog(BuildContext context, HomeController controller,
+      String residentId, int challanIndex) {
+    TextEditingController passwordController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Enter Account Password'),
+          content: TextField(
+            controller: passwordController,
+            decoration: const InputDecoration(labelText: 'Password'),
+            obscureText: true,
+          ),
+          actions: [
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Confirm'),
+              onPressed: () {
+                _verifyPasswordAndMarkPaid(passwordController.text, controller,
+                    residentId, challanIndex, context);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _verifyPasswordAndMarkPaid(
+      String password,
+      HomeController controller,
+      String residentId,
+      int challanIndex,
+      BuildContext context) async {
+    try {
+      auth.User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        auth.AuthCredential credential = auth.EmailAuthProvider.credential(
+            email: user.email!, password: password);
+        await user.reauthenticateWithCredential(credential);
+        await controller.markChallanAsPaid(residentId, challanIndex);
+        Navigator.of(context).pop();
+        Get.snackbar('Success', 'Challan marked as paid');
+      } else {
+        throw Exception('User not found');
+      }
+    } catch (e) {
+      Navigator.of(context).pop();
+      Get.snackbar('Error', 'Failed to verify password: $e');
+    }
+  }
+
+  void _showDiscountDialog(
+      BuildContext context, HomeController controller, String residentId) {
+    TextEditingController discountController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Apply Discount'),
+          content: TextField(
+            controller: discountController,
+            decoration: const InputDecoration(labelText: 'Discount Amount'),
+            keyboardType: TextInputType.number,
+          ),
+          actions: [
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Apply'),
+              onPressed: () {
+                double discountAmount =
+                    double.tryParse(discountController.text) ?? 0.0;
+                controller.applyDiscount(residentId, discountAmount);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
 
 class ChallanGenerator {
   static pw.Document generateChallan(
-      Map<String, dynamic> residentData,
-      List<dynamic> roomDetails,
-      List<dynamic> prices,
-      String roomNumber,
-      double basePrice,
-      double attributePrice) {
+    Map<String, dynamic> residentData,
+    List<dynamic> roomDetails,
+    List<dynamic> prices,
+    String roomNumber,
+    double basePrice,
+    double attributePrice,
+    double discount,
+    double advancePayment, // Only subtract this in the first month
+    int challanIndex,
+    DateTime startDate,
+    DateTime endDate,
+  ) {
     String name = residentData['name'] ?? 'Unknown';
-    int daysSpent = residentData['daysSpent'] ?? 0;
-    double totalAmount = daysSpent * (basePrice + attributePrice);
+
+    // Calculate total amount
+    double totalAmount = calculateMonthlyAmount(
+      basePrice,
+      attributePrice,
+      discount,
+      challanIndex == 0
+          ? advancePayment
+          : 0.0, // Subtract advance payment only for the first month
+      startDate,
+      endDate,
+    );
 
     final pdf = pw.Document();
     pdf.addPage(pw.Page(
-        build: (pw.Context context) => pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                children: [
-                  pw.Text('Challan for Hostel Resident',
-                      style: pw.TextStyle(
-                          fontSize: 24, fontWeight: pw.FontWeight.bold)),
-                  pw.SizedBox(height: 20),
-                  pw.Text('Name: $name'),
-                  pw.Text('CNIC: ${residentData['cnic']}'),
-                  pw.Text('Phone Number: ${residentData['phoneNumber']}'),
-                  pw.Text('Room Type: ${residentData['roomType']}'),
-                  pw.Text(
-                      'Joining Date: ${formatDateString(residentData['selectedDate'])}'),
-                  pw.Text('Days Spent: $daysSpent'),
-                  pw.Text('Room Number: $roomNumber'),
-                  pw.SizedBox(height: 20),
-                  pw.Text(
-                      'Rate per Day: \$${basePrice.toStringAsFixed(2)} + \$${attributePrice.toStringAsFixed(2)} (attributes)'),
-                  pw.Text('Total Amount: \$${totalAmount.toStringAsFixed(2)}'),
-                  pw.SizedBox(height: 20),
-                  pw.Text(
-                      'Please make the payment at the earliest convenience.')
-                ])));
+      build: (pw.Context context) => pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text('Hostel Resident Challan',
+              style:
+                  pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
+          pw.SizedBox(height: 20),
+          pw.Text('Name: $name'),
+          pw.Text('CNIC: ${residentData['cnic']}'),
+          pw.Text('Phone Number: ${residentData['phoneNumber']}'),
+          pw.Text('Room Type: ${residentData['roomType']}'),
+          pw.Text(
+              'Joining Date: ${formatDateString(residentData['selectedDate'])}'),
+          pw.Text('Room Number: $roomNumber'),
+          pw.Text('Discount: \Rs${discount.toStringAsFixed(2)}'),
+          if (challanIndex == 0)
+            pw.Text(
+                'Advance Payment (Subtracted in First Month): \Rs${advancePayment.toStringAsFixed(2)}'),
+          pw.SizedBox(height: 20),
+          pw.Text(
+              'Rate per Day: \Rs${basePrice.toStringAsFixed(2)} + \Rs${attributePrice.toStringAsFixed(2)} (attributes)'),
+          pw.Text(
+              'Total Amount for ${DateFormat('MMMM yyyy').format(startDate)}: \Rs${totalAmount.toStringAsFixed(2)}'),
+          pw.SizedBox(height: 20),
+          pw.Text('Please make the payment at your earliest convenience.'),
+          pw.SizedBox(height: 20),
+          pw.Text(
+              'Challan Period: ${DateFormat('yyyy-MM-dd').format(startDate)} to ${DateFormat('yyyy-MM-dd').format(endDate)}'),
+        ],
+      ),
+    ));
     return pdf;
+  }
+
+  static double calculateMonthlyAmount(
+      double basePrice,
+      double attributePrice,
+      double discount,
+      double advancePayment,
+      DateTime startDate,
+      DateTime endDate) {
+    int daysInPeriod = endDate.difference(startDate).inDays + 1;
+    return daysInPeriod * (basePrice + attributePrice) -
+        discount -
+        advancePayment;
   }
 
   static String formatDateString(dynamic date) {

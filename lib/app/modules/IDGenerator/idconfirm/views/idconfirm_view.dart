@@ -45,9 +45,10 @@ class IdconfirmView extends GetView<IdconfirmController> {
               onPressed: () => Get.toNamed('/occupancy-detail'),
               child: const Text('Go to Occupancy Details'),
               style: ElevatedButton.styleFrom(
-                primary: Colors.blue,
-                onPrimary: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.blue,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
               ),
             ),
             const SizedBox(height: 20),
@@ -55,9 +56,10 @@ class IdconfirmView extends GetView<IdconfirmController> {
               onPressed: () => _copyToClipboard(documentId),
               child: const Text('Copy Document ID'),
               style: ElevatedButton.styleFrom(
-                primary: Colors.grey,
-                onPrimary: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.grey,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
               ),
             ),
           ],
